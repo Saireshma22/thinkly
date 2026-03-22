@@ -5,19 +5,130 @@ export default function App() {
     {
       role: "assistant",
       content:
-        "👋 Welcome to Frontend Interview Mentor.\n\nAsk me anything about HTML, CSS, JavaScript, or React 🚀",
+        "👋 Welcome to Frontend Interview Mentor.\n\nI specialize in HTML, CSS, JavaScript & React.\n\nAsk me interview questions 🚀",
     },
   ]);
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-
   const chatEndRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages]);
 
-  const sendMessage = async (customInput) => {
+  const getResponse = (input) => {
+  const q = input.toLowerCase();
+
+  // CSS
+  if (q.includes("css")) {
+    if (q.includes("type")) {
+      return `CSS has 3 types:
+
+• Inline CSS – inside HTML
+• Internal CSS – inside <style>
+• External CSS – separate file
+
+💡 Tip: Use external CSS in real projects.`;
+    }
+
+    if (q.includes("flexbox")) {
+      return `Flexbox is used for layout alignment.
+
+Key properties:
+• display: flex
+• justify-content
+• align-items
+
+💡 Tip: Best for 1D layouts.`;
+    }
+
+    return `CSS is used to style web pages.
+
+It controls:
+• Colors
+• Layout
+• Spacing
+
+💡 Tip: Learn Flexbox & Grid for interviews.`;
+  }
+
+  // REACT
+  if (q.includes("react")) {
+    if (q.includes("hook")) {
+      return `React Hooks allow functional components to use state.
+
+Examples:
+• useState
+• useEffect
+
+💡 Tip: Explain with examples in interviews.`;
+    }
+
+    return `React.js is a JavaScript library used to build user interfaces.
+
+Key features:
+• Component-based
+• Virtual DOM
+• Reusability
+
+💡 Tip: Mention hooks + virtual DOM in interviews.`;
+  }
+
+  // JAVASCRIPT
+  if (q.includes("javascript") || q.includes("js")) {
+    if (q.includes("event")) {
+      return `Event bubbling means events propagate upward in DOM.
+
+💡 Tip: Also mention event capturing.`;
+    }
+
+    if (q.includes("closure")) {
+      return `Closure is a function that remembers outer variables.
+
+💡 Tip: Used in callbacks and data privacy.`;
+    }
+
+    return `JavaScript is used to make web pages interactive.
+
+💡 Tip: Focus on closures, promises, async/await.`;
+  }
+
+  // API (IMPORTANT FIX)
+  if (q.includes("api")) {
+    return `API (Application Programming Interface) allows communication between systems.
+
+Example:
+Frontend → API → Backend → Database
+
+💡 Tip: Mention REST APIs and HTTP methods (GET, POST).`;
+  }
+
+  // HTML
+  if (q.includes("html")) {
+    return `HTML structures web pages.
+
+Examples:
+• Headings
+• Forms
+• Semantic tags
+
+💡 Tip: Use semantic HTML like <header>, <section>.`;
+  }
+
+  // DEFAULT (SMART FALLBACK)
+  return `That sounds like a frontend question 👍
+
+Here’s a general approach:
+
+• Break the concept clearly  
+• Give example  
+• Mention use-case  
+
+💡 Tip: Try asking more specific question for detailed answer 🚀`;
+};
+
+  const sendMessage = (customInput) => {
     const userInput = customInput || input;
     if (!userInput.trim()) return;
 
@@ -26,61 +137,16 @@ export default function App() {
     setInput("");
     setLoading(true);
 
-    try {
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "openai/gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content: `
-You are a Frontend Interview Mentor.
-
-Rules:
-- Answer ONLY HTML, CSS, JavaScript, React
-- Be clear and interview-focused
-- If unrelated, say: "I focus only on frontend topics."
-`,
-              },
-              {
-                role: "user",
-                content: userInput,
-              },
-            ],
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      const text =
-        data.choices?.[0]?.message?.content ||
-        "⚠️ No response from AI";
+    setTimeout(() => {
+      const reply = getResponse(userInput);
 
       setMessages([
         ...newMessages,
-        { role: "assistant", content: text },
+        { role: "assistant", content: reply },
       ]);
-    } catch (err) {
-      console.log(err);
 
-      setMessages([
-        ...newMessages,
-        {
-          role: "assistant",
-          content: "⚠️ API error. Check your key.",
-        },
-      ]);
-    }
-
-    setLoading(false);
+      setLoading(false);
+    }, 700);
   };
 
   return (
@@ -91,7 +157,7 @@ Rules:
         <div className="p-4 text-center border-b border-white/10">
           <h1 className="text-2xl font-bold">Frontend Interview Mentor</h1>
           <p className="text-sm text-gray-400">
-            Practice HTML, CSS, JS & React 🚀
+            HTML • CSS • JS • React 🚀
           </p>
         </div>
 
@@ -117,8 +183,8 @@ Rules:
           ))}
 
           {loading && (
-            <p className="text-gray-400 text-sm animate-pulse">
-              Mentor is thinking...
+            <p className="text-gray-400 animate-pulse">
+              Mentor is typing...
             </p>
           )}
 
@@ -129,7 +195,7 @@ Rules:
         <div className="flex justify-center gap-3 p-3 border-t border-white/10">
           <button
             onClick={() => sendMessage("What are types of CSS")}
-            className="bg-purple-600 px-4 py-1 rounded-full text-sm hover:bg-purple-700"
+            className="bg-purple-600 px-4 py-1 rounded-full text-sm"
           >
             CSS
           </button>
